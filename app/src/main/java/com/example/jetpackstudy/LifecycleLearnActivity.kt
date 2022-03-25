@@ -1,40 +1,61 @@
 package com.example.jetpackstudy
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
+import com.example.jetpackstudy.data.vm.ActivityLifeModel
 import com.example.jetpackstudy.databinding.ActivityLifecycleLearnBinding
 
 class LifecycleLearnActivity : AppCompatActivity() {
 
-    private lateinit var appBarConfiguration: AppBarConfiguration
+    private val activityLifeModel = ActivityLifeModel()
+
     private lateinit var binding: ActivityLifecycleLearnBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        activityLifeModel.lifeData.value = mutableListOf("Activity: onCreate")
         binding = ActivityLifecycleLearnBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
-
-        val navController = findNavController(R.id.nav_host_fragment_content_lifecycle_learn)
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+        binding.life = activityLifeModel
+        activityLifeModel.lifeData.observe(this
+        ) {
+            binding.lifeOfActivity.text = ButtonTextUtil.showLifecycle(activityLifeModel)
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_lifecycle_learn)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
+    override fun onStart() {
+        super.onStart()
+        postLife("onStart")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        postLife("onRestart")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        postLife("onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        postLife("onPause")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        postLife("onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        postLife("onDestroy")
+    }
+
+    private fun postLife(lifecycle: String) {
+        activityLifeModel.lifeData.value?.add("Activity: $lifecycle")
+        activityLifeModel.lifeData.postValue(activityLifeModel.lifeData.value)
     }
 }
